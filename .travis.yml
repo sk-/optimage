@@ -1,0 +1,20 @@
+sudo: false
+language: python
+python:
+  - "3.3"
+  - "3.4"
+  - "3.5"
+addons:
+  apt:
+    packages:
+      - libjpeg-turbo-progs
+      - jpegoptim
+      - optipng
+      - pngcrush
+# command to install dependencies
+install:
+  - "pip install ."
+  - "pip install coveralls"
+script: "python -R setup.py test"
+after_success:
+  coveralls
