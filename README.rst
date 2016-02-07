@@ -57,7 +57,7 @@ You can install, upgrade or uninstall ``optimage`` with these commands::
 Python Versions
 ---------------
 
-Python 3.3, 3.4 and 3.5 are supported.
+Python 2.7, 3.3, 3.4 and 3.5 are supported.
 
 
 Development
@@ -74,6 +74,11 @@ Tests are run using pytest, either with::
 
 Changelog
 =========
+
+v0.2.0 (2016-02-08)
+-------------------
+
+* Added support for Python 2.7
 
 v0.0.1 (2015-12-24)
 -------------------

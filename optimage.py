@@ -66,6 +66,12 @@ class InvalidExtension(Exception):
     """The file extension does not correspond to the file contents."""
 
 
+if sys.version_info.major == 2:
+  FileNotFoundError = OSError
+else:
+  FileNotFoundError = FileNotFoundError
+
+
 class MissingBinary(FileNotFoundError):
     """The binary does not exist."""
 
