@@ -80,6 +80,8 @@ v0.2.0 (2016-02-08)
 
 * Added support for Python 2.7
 * Added support for zopflipng
+* Fixed #4: Images are now considered equal when alpha is 0 regardless of RGB.
+* Fixed #6: Add --debug option to gather performance stats
 
 v0.0.1 (2015-12-24)
 -------------------

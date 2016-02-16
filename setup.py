@@ -29,7 +29,7 @@ setup(
     scripts=['scripts/optimage'],
     setup_requires=['pytest-runner'],
     install_requires=['Pillow'],
-    tests_require=['pytest', 'pytest-cov'],
+    tests_require=['pytest', 'pytest-cov', 'pytest-catchlog'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',

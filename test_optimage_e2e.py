@@ -69,8 +69,9 @@ def test_optimized_file(filename, capsys):
 def test_check_optimized(filename, capsys):
     exit_code = optimage.main([os.path.join('test_data', filename)])
     assert exit_code == 1
-    out, _ = capsys.readouterr()
+    out, err = capsys.readouterr()
     assert 'File can be losslessly compressed to' in out
+    assert err == ''
 
 
 @pytest.mark.parametrize('filename', [
@@ -85,8 +86,9 @@ def test_replace(filename, capsys, tmpdir):
 
     exit_code = optimage.main(['--replace', output_filename])
     assert exit_code == 0
-    out, _ = capsys.readouterr()
+    out, err = capsys.readouterr()
     assert 'File was losslessly compressed to' in out
+    assert err == ''
 
     original_size = os.path.getsize(original_filename)
     output_size = os.path.getsize(output_filename)
@@ -106,8 +108,9 @@ def test_output_file(filename, capsys, tmpdir):
 
     exit_code = optimage.main(['--output', output_filename, original_filename])
     assert exit_code == 0
-    out, _ = capsys.readouterr()
+    out, err = capsys.readouterr()
     assert 'File was losslessly compressed to' in out
+    assert err == ''
 
     original_size = os.path.getsize(original_filename)
     output_size = os.path.getsize(output_filename)
@@ -136,3 +139,15 @@ def test_commanderror(capsys, monkeypatch):
     assert exit_code == 7
     _, err = capsys.readouterr()
     assert 'Output:\ncustom error' in err
+
+
+@pytest.mark.parametrize('filename, compressor', [
+    # Do not specify compressor as it depends on the version of the commands
+    # installed. In Mac I get that pngcrush is better than zopflipng, but not in
+    # travis which has the latest version.
+    ('valid1.png', ''),
+    ('valid1_compressed.png', 'None'),
+])
+def test_debug(filename, compressor, caplog):
+    exit_code = optimage.main([os.path.join('test_data', filename), '--debug'])
+    assert '{}: best compressor for'.format(compressor) in caplog.text
