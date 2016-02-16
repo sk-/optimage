@@ -27,10 +27,31 @@ def _images_are_equal(filename1, filename2):
     # We need to convert both images to the same format, as the resulting one
     # may have lost the alpha channel (alpha=255) or may be now indexed
     # (L or P mode).
+    # We also need to check whether the alpha value is '\x00' in which case the
+    # RGB value is not important.
     img1 = Image.open(filename1).convert('RGBA')
     img2 = Image.open(filename2).convert('RGBA')
 
-    return img1.tobytes() == img2.tobytes()
+    img1_bytes = img1.tobytes()
+    img2_bytes = img2.tobytes()
+
+    if len(img1_bytes) != len(img2_bytes):
+        return False
+
+    # HACK to support comparison in both Python 2 and 3. Subscripting a
+    # bytes (string) in Python 2 returns a string, whereas in Python 3 returns
+    # ints.
+    null_byte = b'\x00'[0]
+    for i in range(len(img1_bytes) // 4):
+        pos = 4 * i
+        if (img1_bytes[pos + 3] == null_byte and
+                img2_bytes[pos + 3] == null_byte):
+            continue
+
+        if img1_bytes[pos:pos + 4] != img2_bytes[pos:pos + 4]:
+            return False
+
+    return True
 
 
 # Magic numbers taken from https://en.wikipedia.org/wiki/List_of_file_signatures
