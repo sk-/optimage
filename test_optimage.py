@@ -41,6 +41,10 @@ def test_check_magic_number(filename, magic, expected_result):
     ('test_data/valid1.png', 'test_data/valid1_compressed.png', True),
     ('test_data/valid1.png', 'test_data/valid1.jpg', True),
     ('test_data/valid1.png', 'test_data/valid2.png', False),
+    ('test_data/valid2.jpg', 'test_data/valid3.jpg', False),
+    # Issue 4 (https://github.com/sk-/optimage/issues/4):
+    # Images with alpha channel 0 should be equal regardless of the RGB values
+    ('test_data/zopfli_issue20_original.png', 'test_data/zopfli_issue20_vs2013.png', True),
 ])
 def test_images_are_equal(filename1, filename2, expected_result):
     assert optimage._images_are_equal(filename1, filename2) == expected_result
