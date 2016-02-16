@@ -12,6 +12,13 @@ addons:
       - jpegoptim
       - optipng
       - pngcrush
+# install zopflipng
+before_script:
+  - git clone https://github.com/google/zopfli
+  - cd zopfli
+  - make zopflipng
+  - export PATH=$PATH:$PWD
+  - cd -
 # command to install dependencies
 install:
   - "pip install ."

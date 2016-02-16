@@ -79,6 +79,7 @@ v0.2.0 (2016-02-08)
 -------------------
 
 * Added support for Python 2.7
+* Added support for zopflipng
 
 v0.0.1 (2015-12-24)
 -------------------

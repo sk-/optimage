@@ -90,7 +90,12 @@ def _pngcrush(input_filename, output_filename):
 
 def _optipng(input_filename, output_filename):
     _call_binary(['optipng', '-out', output_filename, '-o9', '-quiet',
-                   input_filename])
+                  input_filename])
+
+
+def _zopflipng(input_filename, output_filename):
+    _call_binary(['zopflipng', '-m', '--lossy_8bit', '--lossy_transparent',
+                  '--filters=0me', input_filename, output_filename])
 
 
 def _jpegtran(input_filename, output_filename):
@@ -161,7 +166,8 @@ def png_compressor(input_filename, output_filename):
     if not _is_png(input_filename):
         raise InvalidExtension()
 
-    _compress_with(input_filename, output_filename, [_pngcrush, _optipng])
+    _compress_with(input_filename, output_filename,
+                   [_pngcrush, _optipng, _zopflipng])
 
 
 _EXTENSION_MAPPING = {
