@@ -14,6 +14,7 @@
 
 import argparse
 import collections
+import logging
 import os.path
 import shutil
 import subprocess
@@ -132,7 +133,7 @@ def _jpegoptim(input_filename, output_filename):
 
 
 _CompressorResult = collections.namedtuple('_CompressorResult',
-                                           ['size', 'filename'])
+                                           ['size', 'filename', 'compressor'])
 
 
 def _process(input_filename, compressor):
@@ -146,7 +147,7 @@ def _process(input_filename, compressor):
     compressor(input_filename, result_filename)
     result_size = os.path.getsize(result_filename)
 
-    return _CompressorResult(result_size, result_filename)
+    return _CompressorResult(result_size, result_filename, compressor.__name__)
 
 
 def _compress_with(input_filename, output_filename, compressors):
@@ -161,9 +162,21 @@ def _compress_with(input_filename, output_filename, compressors):
     best_result = min(results)
     os.rename(best_result.filename, output_filename)
 
-    if (best_result.size >= os.path.getsize(input_filename) or
+    best_compressor = best_result.compressor
+    if (best_result.size >= os.path.getsize(input_filename)):
+        best_compressor = None
+
+    if (best_compressor is not None and
             not _images_are_equal(input_filename, output_filename)):
+        logging.info('Compressor "%s" generated an invalid image for "%s"',
+                     best_compressor, input_filename)
+        best_compressor = None
+
+    if best_compressor is None:
         shutil.copy(input_filename, output_filename)
+
+    logging.info('%s: best compressor for "%s"', best_compressor,
+                 input_filename)
 
 
 def jpeg_compressor(input_filename, output_filename):
@@ -212,6 +225,7 @@ def _parse_argv(argv):
                         action='store',
                         help='the filename to compress',
                         required=False)
+    parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
 
     return args
@@ -234,6 +248,10 @@ def main(argv):
             'No lossless compressor defined for extension "{}"\n'.format(
                 extension))
         return 4
+
+    if args.debug:
+        logging.basicConfig(level=logging.INFO,
+                            format='%(levelname)s: %(message)s')
 
     output_filename = _get_temporary_filename(prefix='lossless-compressor')
     try:
