@@ -12,7 +12,9 @@ def test_missing_filename(capsys):
         exit_code = optimage.main([])
     assert excinfo.value.code == 2
     _, err = capsys.readouterr()
-    assert 'error: the following arguments are required: filename' in err
+    py3_error = 'error: the following arguments are required: filename'
+    py2_error = 'error: too few arguments'
+    assert py3_error in err or py2_error in err
 
 
 def test_input_is_directory(capsys):
@@ -116,7 +118,7 @@ def test_output_file(filename, capsys, tmpdir):
 
 def test_binary_not_found(capsys, monkeypatch):
     def mock_check_output(args, stderr=None):
-        raise FileNotFoundError()
+        raise optimage.FileNotFoundError()
 
     monkeypatch.setattr(subprocess, 'check_output', mock_check_output)
     exit_code = optimage.main([os.path.join('test_data', 'valid1.png')])
