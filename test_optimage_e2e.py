@@ -3,6 +3,11 @@ import shutil
 import subprocess
 
 import pytest
+try:
+  import pytest_catchlog
+  catchlog_available = True
+except ImportError:
+  catchlog_available = False
 
 import optimage
 
@@ -141,6 +146,8 @@ def test_commanderror(capsys, monkeypatch):
     assert 'Output:\ncustom error' in err
 
 
+@pytest.mark.skipif(not catchlog_available,
+                    reason='pytest_catchlog not available')
 @pytest.mark.parametrize('filename, compressor', [
     # Do not specify compressor as it depends on the version of the commands
     # installed. In Mac I get that pngcrush is better than zopflipng, but not in
