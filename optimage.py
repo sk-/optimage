@@ -213,7 +213,8 @@ _EXTENSION_MAPPING = {
 
 def _parse_argv(argv):
     parser = argparse.ArgumentParser(
-        description='Losslessly compress JPEG and PNG files.')
+        description='Losslessly compress JPEG and PNG files.',
+        prog='optimage')
     parser.add_argument(
         '--replace',
         action='store_true',
