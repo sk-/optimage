@@ -1,4 +1,4 @@
-import os.path
+import os
 import shutil
 import subprocess
 
@@ -83,6 +83,7 @@ def test_replace(filename, capsys, tmpdir):
     original_filename = os.path.join('test_data', filename)
     output_filename = os.path.join(tmpdir.dirname, filename)
     shutil.copy(original_filename, output_filename)
+    os.chmod(output_filename, 420)  # 420 == 0o644
 
     exit_code = optimage.main(['--replace', output_filename])
     assert exit_code == 0
