@@ -75,6 +75,11 @@ Tests are run using pytest, either with::
 Changelog
 =========
 
+unreleased
+----------
+
+* Fixed #13: temporary files are removed after use
+
 v0.2.0 (2016-02-08)
 -------------------
 
