@@ -5,11 +5,23 @@ import pytest
 
 import optimage
 
+# pylint: disable=protected-access
 
-def test_prefix():
+
+def test_get_temporary_filename_prefix():
     tmp_filename = optimage._get_temporary_filename(prefix='prefix')
     assert os.path.basename(tmp_filename).startswith('prefix')
     assert not os.path.exists(tmp_filename)
+
+
+def test_temporary_filenames():
+    with optimage._temporary_filenames(3) as temp_filenames:
+        assert len(temp_filenames) == 3
+        with open(temp_filenames[1], 'w') as f:
+            f.write('foo')
+
+    for temp_filename in temp_filenames:
+        assert not os.path.exists(temp_filename)
 
 
 @pytest.mark.parametrize('filename, expected_result', [

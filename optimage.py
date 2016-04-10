@@ -14,7 +14,9 @@
 
 import argparse
 import collections
+import contextlib
 import logging
+import os
 import os.path
 import shutil
 import subprocess
@@ -84,6 +86,20 @@ def _get_temporary_filename(prefix='tmp'):
     return temp_name
 
 
+@contextlib.contextmanager
+def _temporary_filenames(total):
+    """Context manager to create temporary files and remove them after use."""
+    temp_files = [_get_temporary_filename('optimage-') for i in range(total)]
+    yield temp_files
+    for temp_file in temp_files:
+        try:
+            os.remove(temp_file)
+        except OSError:
+            # Continue in case we could not remove the file. One reason is that
+            # the fail was never created.
+            pass
+
+
 class InvalidExtension(Exception):
     """The file extension does not correspond to the file contents."""
 
@@ -136,18 +152,17 @@ _CompressorResult = collections.namedtuple('_CompressorResult',
                                            ['size', 'filename', 'compressor'])
 
 
-def _process(input_filename, compressor):
+def _process(compressor, input_filename, output_filename):
     """Helper function to compress an image.
 
     Returns:
-      _CompressorResult named tuple, with the resulting size and the temporary
-      filename used.
+      _CompressorResult named tuple, with the resulting size, the name of the
+      output file and the name of the compressor.
     """
-    result_filename = _get_temporary_filename(prefix=compressor.__name__)
-    compressor(input_filename, result_filename)
-    result_size = os.path.getsize(result_filename)
+    compressor(input_filename, output_filename)
+    result_size = os.path.getsize(output_filename)
 
-    return _CompressorResult(result_size, result_filename, compressor.__name__)
+    return _CompressorResult(result_size, output_filename, compressor.__name__)
 
 
 def _compress_with(input_filename, output_filename, compressors):
@@ -157,23 +172,25 @@ def _compress_with(input_filename, output_filename, compressors):
     image is not equivalent to the source, then the output will be a copy of the
     input.
     """
-    results = [
-        _process(input_filename, compressor) for compressor in compressors]
-    best_result = min(results)
-    os.rename(best_result.filename, output_filename)
+    with _temporary_filenames(len(compressors)) as temp_filenames:
+        results = []
+        for compressor, temp_filename in zip(compressors, temp_filenames):
+            results.append(_process(compressor, input_filename, temp_filename))
+        best_result = min(results)
+        os.rename(best_result.filename, output_filename)
 
-    best_compressor = best_result.compressor
-    if (best_result.size >= os.path.getsize(input_filename)):
-        best_compressor = None
+        best_compressor = best_result.compressor
+        if best_result.size >= os.path.getsize(input_filename):
+            best_compressor = None
 
-    if (best_compressor is not None and
-            not _images_are_equal(input_filename, output_filename)):
-        logging.info('Compressor "%s" generated an invalid image for "%s"',
-                     best_compressor, input_filename)
-        best_compressor = None
+        if (best_compressor is not None and
+                not _images_are_equal(input_filename, output_filename)):
+            logging.info('Compressor "%s" generated an invalid image for "%s"',
+                         best_compressor, input_filename)
+            best_compressor = None
 
-    if best_compressor is None:
-        shutil.copy(input_filename, output_filename)
+        if best_compressor is None:
+            shutil.copy(input_filename, output_filename)
 
     logging.info('%s: best compressor for "%s"', best_compressor,
                  input_filename)
@@ -254,53 +271,54 @@ def main(argv):
         logging.basicConfig(level=logging.INFO,
                             format='%(levelname)s: %(message)s')
 
-    output_filename = _get_temporary_filename(prefix='lossless-compressor')
-    try:
-        compressor(filename, output_filename)
-    except InvalidExtension as error:
-        sys.stderr.write(
-            '{} is not a "{}" file. Please correct the extension\n'.format(
-                filename, extension))
-        return 5
-    except MissingBinary as error:
-        sys.stderr.write(
-            'The executable "{}" was not found. '.format(error.filename) +
-            'Please install it and re-run this command.\n')
-        return 6
-    except subprocess.CalledProcessError as error:
-        sys.stderr.write(
-            'Error when running the command:\n  ' +
-            '{}\n'.format(' '.join(error.cmd)))
-        sys.stderr.write('Status: {}\n'.format(error.returncode))
-        sys.stderr.write('Output:\n')
-        sys.stderr.write(error.output.decode('utf-8'))
-        return 7
+    with _temporary_filenames(1) as temp_filenames:
+        output_filename = temp_filenames[0]
+        try:
+            compressor(filename, output_filename)
+        except InvalidExtension as error:
+            sys.stderr.write(
+                '{} is not a "{}" file. Please correct the extension\n'.format(
+                    filename, extension))
+            return 5
+        except MissingBinary as error:
+            sys.stderr.write(
+                'The executable "{}" was not found. '.format(error.filename) +
+                'Please install it and re-run this command.\n')
+            return 6
+        except subprocess.CalledProcessError as error:
+            sys.stderr.write(
+                'Error when running the command:\n  ' +
+                '{}\n'.format(' '.join(error.cmd)))
+            sys.stderr.write('Status: {}\n'.format(error.returncode))
+            sys.stderr.write('Output:\n')
+            sys.stderr.write(error.output.decode('utf-8'))
+            return 7
 
-    original_size = os.path.getsize(filename)
-    new_size = os.path.getsize(output_filename)
-    reduction = original_size - new_size
-    reduction_percentage = reduction * 100 / original_size
-    savings = 'savings: {} bytes = {:.2f}%'.format(
-        reduction, reduction_percentage)
+        original_size = os.path.getsize(filename)
+        new_size = os.path.getsize(output_filename)
+        reduction = original_size - new_size
+        reduction_percentage = reduction * 100 / original_size
+        savings = 'savings: {} bytes = {:.2f}%'.format(
+            reduction, reduction_percentage)
 
-    if new_size < original_size:
-        if args.replace or args.output is not None:
-            if args.replace:
-                shutil.copy(output_filename, filename)
-            else:
-                shutil.copy(output_filename, args.output)
+        if new_size < original_size:
+            if args.replace or args.output is not None:
+                if args.replace:
+                    shutil.copy(output_filename, filename)
+                else:
+                    shutil.copy(output_filename, args.output)
 
-            print('File was losslessly compressed to {} bytes ({})'.format(
-                new_size, savings))
-            return 0
-        else:
-            print(
-                'File can be losslessly compressed to {} bytes ({})'.format(
+                print('File was losslessly compressed to {} bytes ({})'.format(
                     new_size, savings))
-            print('Replace it by running either:')
-            print('  optimage --replace {}'.format(filename))
-            print('  optimage --output <FILENAME> {}'.format(filename))
-            return 1
+                return 0
+            else:
+                print(
+                    'File can be losslessly compressed to {} bytes ({})'.format(
+                        new_size, savings))
+                print('Replace it by running either:')
+                print('  optimage --replace {}'.format(filename))
+                print('  optimage --output <FILENAME> {}'.format(filename))
+                return 1
 
     return 0
 
