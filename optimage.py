@@ -132,8 +132,8 @@ def _optipng(input_filename, output_filename):
 
 
 def _zopflipng(input_filename, output_filename):
-    _call_binary(['zopflipng', '-m', '--lossy_8bit', '--lossy_transparent',
-                  '--filters=0me', input_filename, output_filename])
+    _call_binary(['zopflipng', '-m', '--lossy_transparent', '--filters=0me',
+                  input_filename, output_filename])
 
 
 def _jpegtran(input_filename, output_filename):
