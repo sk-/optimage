@@ -75,9 +75,10 @@ Tests are run using pytest, either with::
 Changelog
 =========
 
-unreleased
+v0.3.0 (2017-03-19)
 ----------
 
+* Fixed #19: remove --lossy_8bit from zopflipng call
 * Fixed #13: temporary files are removed after use
 
 v0.2.0 (2016-02-08)

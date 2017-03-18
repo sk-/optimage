@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='optimage',
-    version='0.2.0',
+    version='0.3.0',
     description='Optimage: Lossless Compressor for PNG and JPEG',
     long_description=open('README.rst').read(),
     author='Sebastian Kreft',
