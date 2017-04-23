@@ -121,6 +121,8 @@ def _call_binary(args):
         raise MissingBinary(error.errno, 'binary not found', args[0])
 
 
+# Add -blacken -bail -l 9
+# and for faster results -l 6 or 7 and maybe -z 2
 def _pngcrush(input_filename, output_filename):
     _call_binary(['pngcrush', '-rem', 'alla', '-reduce', '-brute', '-q',
                   input_filename, output_filename])
