@@ -16,6 +16,7 @@ import argparse
 import collections
 import contextlib
 import logging
+import multiprocessing.pool
 import os
 import os.path
 import shutil
@@ -173,9 +174,15 @@ def _compress_with(input_filename, output_filename, compressors):
     input.
     """
     with _temporary_filenames(len(compressors)) as temp_filenames:
-        results = []
-        for compressor, temp_filename in zip(compressors, temp_filenames):
-            results.append(_process(compressor, input_filename, temp_filename))
+        process_args = [
+            (compressor, input_filename, temp_filename)
+            for compressor, temp_filename in zip(compressors, temp_filenames)
+        ]
+        process_unpack = lambda args: _process(*args)
+        results = multiprocessing.pool.ThreadPool().map(process_unpack,
+                                                        process_args,
+                                                        chunksize=1)
+
         best_result = min(results)
         os.rename(best_result.filename, output_filename)
 
