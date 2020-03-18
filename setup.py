@@ -13,17 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(
     name='optimage',
-    version='0.3.0',
+    version='0.4.0',
     description='Optimage: Lossless Compressor for PNG and JPEG',
     long_description=open('README.rst').read(),
     author='Sebastian Kreft',
     url='http://github.com/sk-/optimage',
-    py_modules = ['optimage', 'test_optimage', 'test_optimage_e2e'],
+    py_modules=['optimage', 'test_optimage', 'test_optimage_e2e'],
     package_data={'': ['README.rst', 'LICENSE']},
     zip_safe=True,
     scripts=['scripts/optimage'],
@@ -37,9 +37,10 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: Unix',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: System :: Archiving :: Compression',
     ],
 )

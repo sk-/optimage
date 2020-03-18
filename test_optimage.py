@@ -78,7 +78,7 @@ class TestCallBinary:
         def mock_check_output(args, stderr=None):
             assert args == self.cmd_args
             assert stderr == subprocess.STDOUT
-            raise optimage.FileNotFoundError(2, 'file not found', None)
+            raise FileNotFoundError(2, 'file not found', None)
 
         monkeypatch.setattr(subprocess, 'check_output', mock_check_output)
         with pytest.raises(optimage.MissingBinary) as excinfo:

@@ -41,10 +41,7 @@ def _images_are_equal(filename1, filename2):
     if len(img1_bytes) != len(img2_bytes):
         return False
 
-    # HACK to support comparison in both Python 2 and 3. Subscripting a
-    # bytes (string) in Python 2 returns a string, whereas in Python 3 returns
-    # ints.
-    null_byte = b'\x00'[0]
+    null_byte = 0
     for i in range(len(img1_bytes) // 4):
         pos = 4 * i
         if (img1_bytes[pos + 3] == null_byte and
@@ -102,12 +99,6 @@ def _temporary_filenames(total):
 
 class InvalidExtension(Exception):
     """The file extension does not correspond to the file contents."""
-
-
-if sys.version_info.major == 2:
-  FileNotFoundError = OSError
-else:
-  FileNotFoundError = FileNotFoundError
 
 
 class MissingBinary(FileNotFoundError):
@@ -304,9 +295,11 @@ def main(argv):
         if new_size < original_size:
             if args.replace or args.output is not None:
                 if args.replace:
-                    shutil.copy(output_filename, filename)
+                    destination = filename
                 else:
-                    shutil.copy(output_filename, args.output)
+                    destination = args.output
+
+                shutil.copy(output_filename, destination)
 
                 print('File was losslessly compressed to {} bytes ({})'.format(
                     new_size, savings))
@@ -323,7 +316,7 @@ def main(argv):
     return 0
 
 
-__all__ = (jpeg_compressor, png_compressor)
+__all__ = ('jpeg_compressor', 'png_compressor')
 
 
 if __name__ == '__main__':
