@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from setuptools import setup, find_packages
+from setuptools import setup
 
 
 setup(
@@ -23,7 +23,7 @@ setup(
     long_description=open('README.rst').read(),
     author='Sebastian Kreft',
     url='http://github.com/sk-/optimage',
-    py_modules = ['optimage', 'test_optimage', 'test_optimage_e2e'],
+    py_modules=['optimage', 'test_optimage', 'test_optimage_e2e'],
     package_data={'': ['README.rst', 'LICENSE']},
     zip_safe=True,
     scripts=['scripts/optimage'],

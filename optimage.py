@@ -105,9 +105,9 @@ class InvalidExtension(Exception):
 
 
 if sys.version_info.major == 2:
-  FileNotFoundError = OSError
+    FileNotFoundError = OSError
 else:
-  FileNotFoundError = FileNotFoundError
+    FileNotFoundError = FileNotFoundError
 
 
 class MissingBinary(FileNotFoundError):
@@ -304,9 +304,11 @@ def main(argv):
         if new_size < original_size:
             if args.replace or args.output is not None:
                 if args.replace:
-                    shutil.copy(output_filename, filename)
+                    destination = filename
                 else:
-                    shutil.copy(output_filename, args.output)
+                    destination = args.output
+
+                shutil.copy(output_filename, destination)
 
                 print('File was losslessly compressed to {} bytes ({})'.format(
                     new_size, savings))
@@ -323,7 +325,7 @@ def main(argv):
     return 0
 
 
-__all__ = (jpeg_compressor, png_compressor)
+__all__ = ('jpeg_compressor', 'png_compressor')
 
 
 if __name__ == '__main__':

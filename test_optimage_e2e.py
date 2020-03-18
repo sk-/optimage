@@ -4,17 +4,17 @@ import subprocess
 
 import pytest
 try:
-  import pytest_catchlog
-  catchlog_available = True
+    import pytest_catchlog
+    catchlog_available = True
 except ImportError:
-  catchlog_available = False
+    catchlog_available = False
 
 import optimage
 
 
 def test_missing_filename(capsys):
     with pytest.raises(SystemExit) as excinfo:
-        exit_code = optimage.main([])
+        optimage.main([])
     assert excinfo.value.code == 2
     _, err = capsys.readouterr()
     py3_error = 'error: the following arguments are required: filename'
@@ -157,5 +157,5 @@ def test_commanderror(capsys, monkeypatch):
     ('valid1_compressed.png', 'None'),
 ])
 def test_debug(filename, compressor, caplog):
-    exit_code = optimage.main([os.path.join('test_data', filename), '--debug'])
+    optimage.main([os.path.join('test_data', filename), '--debug'])
     assert '{}: best compressor for'.format(compressor) in caplog.text
