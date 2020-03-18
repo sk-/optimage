@@ -128,7 +128,7 @@ def test_output_file(filename, capsys, tmpdir):
 
 def test_binary_not_found(capsys, monkeypatch):
     def mock_check_output(args, stderr=None):
-        raise optimage.FileNotFoundError()
+        raise FileNotFoundError()
 
     monkeypatch.setattr(subprocess, 'check_output', mock_check_output)
     exit_code = optimage.main([os.path.join('test_data', 'valid1.png')])
