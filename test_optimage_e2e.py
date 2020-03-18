@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import subprocess
@@ -157,5 +158,7 @@ def test_commanderror(capsys, monkeypatch):
     ('valid1_compressed.png', 'None'),
 ])
 def test_debug(filename, compressor, caplog):
-    optimage.main([os.path.join('test_data', filename), '--debug'])
+    with caplog.at_level(logging.INFO):
+        optimage.main([os.path.join('test_data', filename), '--debug'])
+
     assert '{}: best compressor for'.format(compressor) in caplog.text
