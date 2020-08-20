@@ -26,6 +26,7 @@ Optimizers
 
   * `pngcrush <http://manpages.ubuntu.com/manpages/trusty/man1/pngcrush.1.html>`_
   * `optipng <http://manpages.ubuntu.com/manpages/trusty/man1/optipng.1.html>`_
+  * `zopflipng <https://github.com/google/zopfli>`_
 
 
 Example usage
@@ -53,6 +54,9 @@ You can install, upgrade or uninstall ``optimage`` with these commands::
   $ pip install --upgrade optimage
   $ pip uninstall optimage
 
+You'll also want to install (note that `libjpeg-turbo-progs` below is for `jpegtran`):
+
+  $ apt install libjpeg-turbo-progs jpegoptim pngcrush optipng zopfli
 
 Python Versions
 ---------------
