@@ -232,7 +232,7 @@ def _parse_argv(argv):
                         help='the filename to compress')
     parser.add_argument('--output',
                         action='store',
-                        help='the filename to compress',
+                        help='the compressed output filename',
                         required=False)
     parser.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
